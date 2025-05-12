@@ -21,7 +21,7 @@ This script modifies Roblox caches. Use it responsibly and understand the risks:
 
 ## Usage
 1. Click on cache or preset you want to replace
-2. click Apply
+2. Click Apply
 3. Restart roblox / leave and rejoin game
 
 
