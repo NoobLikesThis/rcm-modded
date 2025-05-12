@@ -23,7 +23,8 @@ This script modifies Roblox caches. Use it responsibly and understand the risks:
 
 **Executing this script signifies your understanding and acceptance of these risks and your full responsibility.**
 
-
+## Information
+*  Roblox caches are stored in %LOCALAPPDATA%\Temp\Roblox\http
 
 ## How to run
 1.  Clone the repo
