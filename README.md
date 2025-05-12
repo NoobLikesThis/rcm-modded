@@ -40,7 +40,7 @@ This script modifies Roblox caches. Use it responsibly and understand the risks:
 * # R6 AirWalk
    *  This slowly accends your character 40 studs into the sky after jumping. Do NOT move while character is moving up or else you could fall over
       *  Once fully accended, you should be semi-stable and be able to walk around. Other players will see you flying in the air
-   *  # All functions of AirWalk:
+   *  ### All functions of AirWalk:
       *  Air walk
          *  jump to start floating 40 studs into the sky. Do not move while moving up, else you will fall over
       *  Superjump
