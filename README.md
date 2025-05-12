@@ -13,5 +13,7 @@ these changes can not be detected by roblox (as of writing this)
 3. Restart roblox / leave and rejoin game
 
 
-## Info
+## Upcoming features
 *  More functions will be added soon
+*  More Presets and preinstalled caches will be added soon
+*  Added functionality for caches that are not animations (should work already but want to improve)
