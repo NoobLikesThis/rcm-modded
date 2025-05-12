@@ -9,7 +9,8 @@
 
 
 # rcm
-rcm, aka Roblox Cache Modifier is a python script to change any file that roblox caches (animations, textures, meshes and more)
+rcm, aka Roblox Cache Modifier is a python script to swap any file that roblox caches (animations, textures, meshes and more) with a different cache from the same type.
+Using this you can swap animations with different animations, swap textures with different textures and so on.
 
 
 # !!! WARNING !!!
