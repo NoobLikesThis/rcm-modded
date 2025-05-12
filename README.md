@@ -41,12 +41,9 @@ Roblox typically stores its cache files here:
 
 1.  **Clone the Repository:**
     ```bash
-    git clone <repository_url> # Replace <repository_url> with the actual URL
-    cd rcm # Or whatever the repository folder is named
+    git clone https://github.com/vrbalxssandro/rcm.git
     ```
     Alternatively, download the source code as a ZIP file and extract it.
-
-2.  **(Optional but Recommended) Install Dependencies:** If the script has external libraries, list the command here (e.g., `pip install -r requirements.txt`). If not, you can omit this step or state "No external dependencies required."
 
 ## How to Run
 
