@@ -58,10 +58,8 @@ Roblox typically stores its cache files here:
 
 1.  Run the script as described above. This should open the RCM interface.
 2.  Select the cache file or preset you wish to apply.
-3.  Select the replacement cache file (if not using a preset).
-4.  Click the "Apply" button.
-5.  **Crucially:** For changes to take effect in Roblox, you must either:
-    *   Restart the Roblox client completely.
+3.  Click the "Apply" button.
+4.  **Crucially:** For changes to take effect in Roblox, you must:
     *   Leave and rejoin the specific game you are in.
 
 ## Included Presets
