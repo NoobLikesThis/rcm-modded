@@ -31,9 +31,12 @@ This script modifies Roblox caches. Use it responsibly and understand the risks:
 *  Added functionality for caches that are not animations (should work already but want to improve)
 
 ## Presets
-*  R6 "Noclip"
+*  # R6 "Noclip"
    *  This modifies the standard R6 animations to move your Torso and Head away from the real location, making you be able to walk through solid objects.
    *  This does not work in every roblox game, for one of the following:
       *  The game uses custom animations
       *  The game has RootPartCollision turned ON for R6
    *  It could also be that the game uses a custom camera, which locks to the head, making your POV always be high in the air
+* # R6 AirWalk
+   *  This slowly accends your character 40 studs into the sky after jumping. Do NOT move while character is moving up or else you could fall over
+      *  Once fully accended, you should be semi-stable and be able to walk around. Other players will see you flying in the air
