@@ -29,8 +29,8 @@ Roblox typically stores its cache files here:
 ## Features
 
 *   Modify cached assets like animations, textures, meshes, etc.
-*   User-friendly interface (assumed based on "Click Apply").
-*   Includes presets for common modifications.
+*   Clear http folder easily and fast
+*   Includes presets.
 
 ## Prerequisites
 
