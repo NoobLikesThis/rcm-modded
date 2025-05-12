@@ -66,27 +66,24 @@ Roblox typically stores its cache files here:
 
 Here are some pre-configured modifications available:
 
-### 1. R6 "Noclip" (Visual/Physics Glitch)
-
-*   **Effect:** Modifies standard R6 animation files (like walk, run, idle) to significantly offset the visual position of your character's Torso and Head from their actual physical hitbox (controlled by the HumanoidRootPart). This can allow your *visual* character model to pass through some walls in certain games.
-*   **Mechanism:** It replaces default R6 animations with custom ones where the Torso/Head joints are animated far away from the HumanoidRootPart.
-*   **Limitations:**
-    *   **Does NOT work in every game.** Effectiveness depends heavily on the game's configuration.
-    *   **Custom Animations:** Useless if the game forces its own custom R6/R15 animations.
-    *   **Collision Settings:** Ineffective if the game enables specific collision checks (e.g., `RootPartCollision` property enabled for R6 characters).
-    *   **Custom Cameras:** May cause disorientation if the game uses a custom camera script that strictly follows the Head's visual position. Your viewpoint could be stuck far away from your actual location.
-    *   **This is NOT true noclip.** Your actual physics collision (HumanoidRootPart) remains in the original spot. You cannot *walk* through walls, only *appear* to.
-
-### 2. R6 AirWalk
-
-*   **Effect:** Modifies jump/fall animations to cause the character to slowly float upwards (approx. 40 studs) after initiating a jump. Once at the peak, the character becomes somewhat stable for walking in the air.
-*   **Activation:** Jump to start ascending. **Crucial: Do NOT input any movement commands (WASD) while ascending, or you will likely fall and trip.**
-*   **Observed Behavior:** Other players will see your character floating and walking in the air.
-*   **Sub-Features (Resulting from Animation Swaps):**
-    *   **Air Walk:** Jump and wait without moving to float up.
-    *   **Super Jump (Glitch):** Requires specific timing - falling over (tripping) and equipping a tool just before hitting the ground *might* launch you upwards (highly inconsistent).
-    *   **Fast Travel (Glitch):** Holding 'W' (forward) while jumping *might* propel you forward quickly during the ascent phase (inconsistent).
-    *   **Wall Clip (Glitch):** Holding a movement key towards a thin wall (approx. 1-10 studs) and jumping *might* cause your character's physics to glitch through upon landing or during ascent (highly inconsistent).
+*  # R6 "Noclip"
+   *  This modifies the standard R6 animations to move your Torso and Head away from the real location, making you be able to walk through solid objects.
+   *  This does not work in every roblox game, for one of the following:
+      *  The game uses custom animations
+      *  The game has RootPartCollision turned ON for R6
+   *  It could also be that the game uses a custom camera, which locks to the head, making your POV always be high in the air
+* # R6 AirWalk
+   *  This slowly accends your character 40 studs into the sky after jumping. Do NOT move while character is moving up or else you could fall over
+      *  Once fully accended, you should be semi-stable and be able to walk around. Other players will see you flying in the air
+   *  ### All functions of AirWalk:
+      *  Air walk
+         *  jump to start floating 40 studs into the sky. Do not move while moving up, else you will fall over
+      *  Superjump
+         *  fall over and equip tool before touching ground
+      *  Fast travel
+         *  hold w and jump
+      *  Clip
+         *  clip 1 - 100 stud walls by holding preferred movement key and jumping
 
 ## Upcoming Features
 
