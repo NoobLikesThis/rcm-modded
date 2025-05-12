@@ -17,7 +17,7 @@ This script modifies Roblox caches. Use it responsibly and understand the risks:
 
 ## How to run
 1.  Clone the repo
-2.  double click the .py
+2.  Double click the .py
 
 ## Usage
 1. Click on cache or preset you want to replace
