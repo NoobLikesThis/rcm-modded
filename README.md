@@ -29,3 +29,11 @@ This script modifies Roblox caches. Use it responsibly and understand the risks:
 *  More functions will be added soon
 *  More Presets and preinstalled caches will be added soon
 *  Added functionality for caches that are not animations (should work already but want to improve)
+
+## Presets
+*  R6 "Noclip"
+   *  This modifies the standard R6 animations to move your Torso and Head away from the real location, making you be able to walk through solid objects.
+   *  This does not work in every roblox game, for one of the following:
+      *  The game uses custom animations
+      *  The game has RootPartCollision turned ON for R6
+   *  It could also be that the game uses a custom camera, which locks to the head, making your POV always be high in the air
