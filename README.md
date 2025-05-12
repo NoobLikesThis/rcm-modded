@@ -1,4 +1,4 @@
-### Cache modification currently is and probably always will be undetectable by Roblox
+### Cache modification currently is and will probably always be undetectable by Roblox
 
 #
 #
