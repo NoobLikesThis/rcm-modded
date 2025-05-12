@@ -3,7 +3,7 @@ rcm, aka Roblox Cache Modifier is a python script to change any file that roblox
 these changes can not be detected by roblox (as of writing this)
 
 
-*** ACCOUNT RISK WARNING ***
+** ACCOUNT RISK WARNING **
 This script modifies Roblox caches. Use it responsibly and understand the risks:
 
 *   **User Assumes All Risk:** YOU are solely responsible for any consequences, including account warnings, suspensions, or bans from Roblox or specific games, that may result from using this script.
