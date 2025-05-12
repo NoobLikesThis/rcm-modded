@@ -88,9 +88,8 @@ Here are some pre-configured modifications available:
 ## Upcoming Features
 
 *   Expanding the library of built-in presets and easily swappable cache files.
-*   Improved handling and identification for non-animation cache types (textures, sounds, meshes).
+*   Improved handling and identification for non-animation cache types (this should work already, but I want to make it easier, especially for textures).
 *   General usability improvements and additional modification functions.
-*   [Add any other specific planned features here]
 
 ---
 
