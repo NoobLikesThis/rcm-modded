@@ -11,7 +11,7 @@ This script modifies files within the Roblox cache directory. Using this tool ca
 *   **Use At Your Own Risk:** You, the user, assume **ALL responsibility** for any consequences that may arise from using this script. This includes, but is not limited to, warnings, suspensions, or bans issued by Roblox Corporation or individual game developers.
 *   **No Liability:** The creator(s) of RCM accept **ZERO liability** for any negative actions taken against your Roblox account(s) as a result of using this tool.
 *   **Intended Use:** This tool is provided for experimentation and customization purposes only. **Do NOT use it to gain unfair advantages, cheat, or violate Roblox's Terms of Service or any game's rules.**
-*   **Undetectability Not Guaranteed:** While cache modification *might* be difficult to detect *currently*, Roblox can change its detection methods at any time without notice. **Do not assume permanent undetectability.**
+*   **Undetectability Not Guaranteed:** While cache modification might be difficult to detect *currently* (May 2025), Roblox can change its detection methods at any time without notice. **Do not assume permanent undetectability.**
 
 **By downloading, cloning, or executing this script, you acknowledge that you have read, understood, and accepted these terms and risks.**
 
