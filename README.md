@@ -52,7 +52,7 @@ Roblox typically stores its cache files here:
     ```bash
     python rcm.py # Or the actual name of the main Python file
     ```
-    *(Note: If the script has a GUI, double-clicking the `.py` file might also work if your Python installation is configured correctly, but running from the command line is often more reliable for seeing potential errors.)*
+    * Or just double click the Python file
 
 ## Usage Guide
 
