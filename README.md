@@ -26,8 +26,8 @@ This script modifies Roblox caches. Use it responsibly and understand the risks:
 
 
 ## Upcoming features
-*  More functions will be added soon
-*  More Presets and preinstalled caches will be added soon
+*  More functions
+*  More Presets and preinstalled caches
 *  Added functionality for caches that are not animations (should work already but want to improve)
 
 ## Presets
