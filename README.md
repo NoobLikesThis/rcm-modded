@@ -50,7 +50,7 @@ Roblox typically stores its cache files here:
 1.  Navigate to the script's directory in your terminal or file explorer.
 2.  Execute the Python script:
     ```bash
-    python rcm.py # Or the actual name of the main Python file
+    python rcm.py
     ```
     * Or just double click the Python file
 
