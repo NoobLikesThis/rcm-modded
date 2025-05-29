@@ -32,13 +32,13 @@ class RobloxFileReplacer(tk.Tk):
                 data = json.load(f)
             lines = data if isinstance(data, list) else []
         except Exception:
-            # Fallback for old plain text format if JSON parsing fails
+            # This nested structure is from the original; if functions.json is missing,
+            # this inner open will also fail.
             try:
-                with open(self.functions_file, 'r', encoding='utf-8-sig') as f: # Ensure correct encoding
+                with open(self.functions_file, 'r', encoding='utf-8-sig') as f:
                     lines = [l.strip() for l in f if l.strip()]
-            except Exception:
-                lines = [] # If file doesn't exist or is unreadable
-                
+            except Exception: # If all fails (e.g. file not found), lines remains empty or unassigned if not init above
+                lines = [] # Ensure lines is defined as empty list
         for entry in lines:
             if ' - ' in entry:
                 key, disp = entry.split(' - ', 1)
@@ -97,189 +97,122 @@ class RobloxFileReplacer(tk.Tk):
         if src == 'Caches':
             # list caches
             for folder in (self.preinstalled_dir, self.own_dir):
-                if os.path.exists(folder): # Ensure folder exists before listing
-                    for fname in os.listdir(folder):
-                        if os.path.isfile(os.path.join(folder, fname)) and ' - ' in fname:
-                            disp = fname.split(' - ',1)[1]
-                            self.item_list.insert(tk.END, disp)
+                for fname in os.listdir(folder):
+                    if os.path.isfile(os.path.join(folder, fname)) and ' - ' in fname:
+                        disp = fname.split(' - ',1)[1]
+                        self.item_list.insert(tk.END, disp)
         else:
             # list presets
-            if os.path.exists(self.presets_dir): # Ensure folder exists
-                for d in os.listdir(self.presets_dir):
-                    if os.path.isdir(os.path.join(self.presets_dir, d)):
-                        self.item_list.insert(tk.END, d)
+            for d in os.listdir(self.presets_dir):
+                if os.path.isdir(os.path.join(self.presets_dir, d)):
+                    self.item_list.insert(tk.END, d)
 
     def apply_selected(self):
         sel = self.item_list.curselection()
         if not sel:
             messagebox.showerror("Error", "No item selected.")
             return
-        item_display_name = self.item_list.get(sel)
-        
+        item = self.item_list.get(sel)
         if self.source_var.get() == 'Caches':
-            found_file = False
-            for folder_path in (self.preinstalled_dir, self.own_dir):
-                if os.path.exists(folder_path):
-                    for fname in os.listdir(folder_path):
-                        if fname.endswith(f" - {item_display_name}") and os.path.isfile(os.path.join(folder_path, fname)):
-                            key_hash = fname.split(' - ',1)[0]
-                            src_path = os.path.join(folder_path, fname)
-                            dest_path = os.path.join(self.http_dir, key_hash)
-                            try:
-                                shutil.copy2(src_path, dest_path)
-                                messagebox.showinfo("Success", f"Replaced {key_hash} in HTTP folder.")
-                                found_file = True
-                                return # Exit after applying
-                            except Exception as e:
-                                messagebox.showerror("Error", f"Failed to apply cache: {e}")
-                                return
-            if not found_file:
-                 messagebox.showerror("Error", f"Cache file for '{item_display_name}' not found.")
-
-        else: # Apply preset
-            preset_folder_path = os.path.join(self.presets_dir, item_display_name)
-            if not os.path.isdir(preset_folder_path):
-                messagebox.showerror("Error", f"Preset folder '{item_display_name}' not found.")
-                return
-            
-            count = 0
-            errors = []
-            for fname in os.listdir(preset_folder_path):
-                if ' - ' in fname: # Ensure it's a cache file format
-                    key_hash = fname.split(' - ',1)[0]
-                    src_path = os.path.join(preset_folder_path, fname)
-                    dest_path = os.path.join(self.http_dir, key_hash)
-                    try:
-                        shutil.copy2(src_path, dest_path)
-                        count += 1
-                    except Exception as e:
-                        errors.append(f"Failed to copy {fname}: {e}")
-            
-            if errors:
-                messagebox.showwarning("Partial Success", f"Applied {count} files from preset '{item_display_name}'.\nErrors:\n" + "\n".join(errors))
-            elif count > 0:
-                messagebox.showinfo("Success", f"Applied {count} files from preset '{item_display_name}'.")
-            else:
-                messagebox.showinfo("Info", f"No files applied from preset '{item_display_name}'. It might be empty or files are not in correct format.")
+            # apply cache
+            # find file in caches
+            for folder in (self.preinstalled_dir, self.own_dir):
+                for fname in os.listdir(folder):
+                    if fname.endswith(f"- {item}"):
+                        key = fname.split(' - ',1)[0]
+                        shutil.copy2(os.path.join(folder, fname), os.path.join(self.http_dir, key))
+                        messagebox.showinfo("Success", f"Replaced {key} in HTTP folder.")
+                        return
+        else:
+            # apply preset
+            folder = os.path.join(self.presets_dir, item)
+            cnt=0
+            for f in os.listdir(folder):
+                key = f.split(' - ',1)[0]
+                shutil.copy2(os.path.join(folder, f), os.path.join(self.http_dir, key))
+                cnt+=1
+            messagebox.showinfo("Success", f"Applied {cnt} files from preset {item}.")
 
     def create_cache(self):
         if self.source_var.get() != 'Caches':
             messagebox.showerror("Error", "Switch to Caches to create a cache.")
             return
-        src_filepath = filedialog.askopenfilename(title="Select source file for cache")
-        if not src_filepath:
+        src = filedialog.askopenfilename(title="Select source file for cache")
+        if not src:
             return
-
         dialog = tk.Toplevel(self)
-        dialog.title("Create Cache")
         dialog.configure(bg='#212326')
-        dialog.transient(self)
-        dialog.grab_set()
-
-        ttk.Label(dialog, text="Select function or choose 'Custom Hash':").pack(padx=10, pady=(10,0))
+        ttk.Label(dialog, text="Select function:").pack(padx=10, pady=(10,0))
         
-        function_display_names = [d for _, d in self.functions]
-        custom_hash_option_text = "Custom Hash..."
-        combobox_values = function_display_names + [custom_hash_option_text]
+        combo_values = [d for _, d in self.functions]
+        combo = ttk.Combobox(dialog, values=combo_values, state='readonly')
+        combo.pack(padx=10, pady=5)
+        # Original combo.current(0) behavior: if self.functions is empty, this line could error.
+        # To preserve original behavior strictly, we call it. If functions are loaded, it's fine.
+        if combo_values: # Only call current if there are values, to prevent TclError
+            combo.current(0)
         
-        combo_fn_or_custom = ttk.Combobox(dialog, values=combobox_values, state='readonly', width=30)
-        combo_fn_or_custom.pack(padx=10, pady=5)
-        
-        if self.functions:
-            combo_fn_or_custom.current(0)
-        elif combobox_values: # Should always be true due to custom_hash_option_text
-            combo_fn_or_custom.set(custom_hash_option_text)
+        # ---- START OF ADDED/MODIFIED CODE FOR CUSTOM HASH ----
+        custom_hash_holder = [None] # Use a list to make it mutable in the inner function
 
-        custom_hash_label = ttk.Label(dialog, text="Enter Custom Hash:")
-        custom_hash_entry = ttk.Entry(dialog, width=33)
+        def ask_for_custom_hash_input():
+            # parent=dialog makes simpledialog modal to this specific dialog
+            chash = simpledialog.askstring("Custom Hash", "Enter custom hash value:", parent=dialog)
+            if chash and chash.strip(): # If user entered non-whitespace string
+                custom_hash_holder[0] = chash.strip()
+                messagebox.showinfo("Info", f"Custom hash '{custom_hash_holder[0]}' will be used.", parent=dialog)
+            elif chash is not None: # User entered an empty string or only whitespace
+                 messagebox.showwarning("Warning", "Custom hash was empty. Dropdown selection will be used if available.", parent=dialog)
+                 custom_hash_holder[0] = None # Ensure it's reset if invalid
+            # If chash is None (user cancelled dialog), custom_hash_holder[0] remains unchanged.
 
-        def toggle_custom_hash_ui(event=None):
-            if combo_fn_or_custom.get() == custom_hash_option_text:
-                custom_hash_label.pack(padx=10, pady=(5,0))
-                custom_hash_entry.pack(padx=10, pady=2)
-            else:
-                custom_hash_label.pack_forget()
-                custom_hash_entry.pack_forget()
-        
-        combo_fn_or_custom.bind("<<ComboboxSelected>>", toggle_custom_hash_ui)
-        toggle_custom_hash_ui() # Set initial visibility
+        ttk.Button(dialog, text="Input Custom Hash", command=ask_for_custom_hash_input).pack(padx=10, pady=(0,5))
+        # ---- END OF ADDED/MODIFIED CODE FOR CUSTOM HASH ----
 
-        ttk.Label(dialog, text="Enter display name (for your reference):").pack(padx=10, pady=(10,0))
-        entry_display_name = ttk.Entry(dialog, width=33)
-        entry_display_name.pack(padx=10, pady=5)
+        ttk.Label(dialog, text="Enter display name:").pack(padx=10, pady=(10,0)) # pady was (10,0)
+        entry = ttk.Entry(dialog)
+        entry.pack(padx=10, pady=5)
 
-        def on_ok_create():
-            selected_option = combo_fn_or_custom.get()
-            cache_display_name = entry_display_name.get().strip()
+        def on_ok():
+            # Get values from dialog widgets before it's destroyed
+            selected_function_display_name = combo.get()
+            display_name = entry.get().strip()
             
+            # ---- START OF MODIFIED LOGIC IN on_ok ----
             final_hash_key = None
-            if selected_option == custom_hash_option_text:
-                final_hash_key = custom_hash_entry.get().strip()
-                if not final_hash_key:
-                    messagebox.showerror("Error", "Custom hash cannot be empty when 'Custom Hash' is selected.", parent=dialog)
-                    return
-            else: # A pre-defined function was selected
-                final_hash_key = next((k for k, d_text in self.functions if d_text == selected_option), None)
+            if custom_hash_holder[0]: # Custom hash takes precedence
+                final_hash_key = custom_hash_holder[0]
+            else: # Fallback to dropdown if custom hash is not set
+                final_hash_key = next((k for k, d in self.functions if d == selected_function_display_name), None)
+            
+            # Destroy dialog after getting all necessary values
+            # This was originally on the same line as combo.get() and entry.get()
+            dialog.destroy() 
 
-            if not final_hash_key: # Should not happen if logic is correct, but as a safeguard
-                messagebox.showerror("Error", "Could not determine the hash/key.", parent=dialog)
-                return
-            if not cache_display_name:
-                messagebox.showerror("Error", "Display name cannot be empty.", parent=dialog)
+            if not final_hash_key or not display_name:
+                messagebox.showerror("Error","A valid hash (from dropdown or custom input) and a display name are required.")
                 return
             
-            # It's good practice to destroy the dialog before showing a messagebox that isn't an error for this dialog
-            # However, if shutil.copy2 fails, we want the dialog to persist for user to correct.
-            # So, we'll destroy it only on full success.
+            name = f"{final_hash_key} - {display_name}"
+            # ---- END OF MODIFIED LOGIC IN on_ok ----
+            shutil.copy2(src, os.path.join(self.own_dir, name))
+            self.refresh_view()
+            messagebox.showinfo("Success", f"Created cache {name}.")
 
-            target_filename = f"{final_hash_key} - {cache_display_name}"
-            target_path = os.path.join(self.own_dir, target_filename)
-
-            if os.path.exists(target_path):
-                if not messagebox.askyesno("Confirm Overwrite", f"Cache '{target_filename}' already exists. Overwrite?", parent=dialog):
-                    return
-
-            try:
-                shutil.copy2(src_filepath, target_path)
-                dialog.destroy() # Destroy on success
-                self.refresh_view()
-                messagebox.showinfo("Success", f"Created cache '{target_filename}'.")
-            except Exception as e:
-                messagebox.showerror("Error", f"Failed to create cache: {e}", parent=dialog)
-        
-        buttons_frame = ttk.Frame(dialog)
-        buttons_frame.pack(pady=10)
-        ttk.Button(buttons_frame, text="OK", command=on_ok_create).pack(side='left', padx=5)
-        ttk.Button(buttons_frame, text="Cancel", command=dialog.destroy).pack(side='left', padx=5)
-        
-        dialog.wait_window()
+        btnf = ttk.Frame(dialog); btnf.pack(pady=10)
+        ttk.Button(btnf, text="OK", command=on_ok).pack(side='left', padx=5)
+        ttk.Button(btnf, text="Cancel", command=dialog.destroy).pack(side='left', padx=5)
+        dialog.transient(self); dialog.grab_set(); dialog.wait_window()
 
 
     def clear_http_folder(self):
-        if messagebox.askyesno("Confirm","Are you sure you want to delete all files and folders within the Roblox HTTP cache folder?"):
-            cleared_count = 0
-            errors_count = 0
-            if not os.path.exists(self.http_dir):
-                messagebox.showinfo("Info", "HTTP cache folder does not exist. Nothing to clear.")
-                return
-
-            for item_name in os.listdir(self.http_dir):
-                item_path = os.path.join(self.http_dir, item_name)
-                try:
-                    if os.path.isfile(item_path) or os.path.islink(item_path):
-                        os.unlink(item_path)
-                    elif os.path.isdir(item_path):
-                        shutil.rmtree(item_path)
-                    cleared_count += 1
-                except Exception as e:
-                    print(f"Error deleting {item_path}: {e}") # Log to console for debugging
-                    errors_count +=1
-            
-            if errors_count > 0:
-                messagebox.showwarning("Partial Clear", f"Cleared {cleared_count} items. Failed to clear {errors_count} items. Check console for details.")
-            else:
-                messagebox.showinfo("Done", f"Successfully cleared {cleared_count} items from the HTTP cache folder.")
+        if messagebox.askyesno("Confirm","Delete all in HTTP folder?"):
+            cnt=0
+            for f in os.listdir(self.http_dir):
+                p=os.path.join(self.http_dir,f)
+                try: shutil.rmtree(p) if os.path.isdir(p) else os.unlink(p); cnt+=1
+                except: pass
+            messagebox.showinfo("Done", f"Cleared {cnt} items.")
 
 if __name__=='__main__':
-    app = RobloxFileReplacer()
-    app.mainloop()
+    RobloxFileReplacer().mainloop()
