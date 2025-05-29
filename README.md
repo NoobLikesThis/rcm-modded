@@ -39,6 +39,12 @@ Roblox typically stores its cache files here:
 
 ## Installation & Setup
 
+# Video tutorial
+https://youtu.be/PKG_52sUKG8
+
+# Manual
+
+
 1.  **Clone the Repository:**
     ```bash
     git clone https://github.com/vrbalxssandro/rcm.git
