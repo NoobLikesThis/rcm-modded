@@ -24,53 +24,29 @@ class RobloxFileReplacer(tk.Tk):
         # Ensure folders exist
         for path in (self.http_dir, self.preinstalled_dir, self.own_dir, self.presets_dir):
             os.makedirs(path, exist_ok=True)
-        
-        # Create functions.json if it doesn't exist with a sample structure
-        if not os.path.exists(self.functions_file):
-            try:
-                with open(self.functions_file, 'w', encoding='utf-8') as f:
-                    json.dump([
-                        "ExampleHash123 - Example Function 1",
-                        "AnotherHash456 - Example Function 2"
-                    ], f, indent=2)
-            except Exception as e:
-                print(f"Could not create sample functions.json: {e}")
-
 
         # Load functions mapping
         self.functions = []
         try:
             with open(self.functions_file, 'r', encoding='utf-8-sig') as f:
                 data = json.load(f)
-            # Expect data to be a list of strings like "hash - description"
-            if isinstance(data, list):
-                lines = data
-            else: # Fallback for old plain text format or incorrect JSON root
-                lines = [] 
-                print(f"Warning: {self.functions_file} is not a JSON list. Treating as empty.")
-        except json.JSONDecodeError:
-            # Fallback to plain text if JSON parsing fails
-            print(f"Warning: {self.functions_file} is not valid JSON. Attempting to read as plain text.")
-            try:
+            lines = data if isinstance(data, list) else []
+        except Exception:
+            try: # Fallback to reading as plain text if JSON parsing fails or file not found initially
                 with open(self.functions_file, 'r', encoding='utf-8-sig') as f:
                     lines = [l.strip() for l in f if l.strip()]
-            except Exception as e:
+            except FileNotFoundError: # If functions.json doesn't exist at all
+                lines = [] # self.functions will be empty
+                # Optionally, create an empty functions.json here or notify user
+                # For now, just means the dropdown will be empty.
+            except Exception: # Other read errors
                 lines = []
-                print(f"Error reading {self.functions_file} as plain text: {e}")
-        except FileNotFoundError:
-            lines = []
-            print(f"Warning: {self.functions_file} not found. No pre-defined functions will be loaded.")
-        except Exception as e:
-            lines = []
-            print(f"An unexpected error occurred while loading {self.functions_file}: {e}")
 
-        for entry in lines:
-            if isinstance(entry, str) and ' - ' in entry:
-                key, disp = entry.split(' - ', 1)
+
+        for entry_text in lines: # Renamed 'entry' to 'entry_text' to avoid conflict
+            if ' - ' in entry_text:
+                key, disp = entry_text.split(' - ', 1)
                 self.functions.append((key.strip(), disp.strip()))
-            elif isinstance(entry, str): # Handle lines without " - " if any
-                self.functions.append((entry.strip(), entry.strip()))
-
 
         # Style for futuristic look
         style = ttk.Style(self)
@@ -80,11 +56,14 @@ class RobloxFileReplacer(tk.Tk):
         style.configure('TButton', background='#3a3a51', foreground='#ffffff', font=('Segoe UI Semibold', 10), padding=6)
         style.map('TButton', background=[('active', '#4f4f73')])
         style.configure('TRadiobutton', background='#2e2e3d', foreground='#c7c7d9', font=('Segoe UI', 10))
-        style.map('TRadiobutton', indicatorcolor=[('selected', '#6a6aff'), ('!selected', '#3a3a51')], background=[('active', '#38384a')])
         style.configure('TListbox', background='#1e1e2a', foreground='#ffffff', font=('Consolas', 10))
-        style.configure('TCombobox', background='#1e1e2a', foreground='#ffffff', fieldbackground='#1e1e2a', selectbackground='#4f4f73', font=('Segoe UI', 10))
-        style.map('TCombobox', fieldbackground=[('readonly', '#1e1e2a')], foreground=[('readonly', '#ffffff')])
-        style.configure('TEntry', background='#1e1e2a', foreground='#ffffff', fieldbackground='#1e1e2a', insertcolor='#ffffff', font=('Segoe UI', 10))
+        # Ensure ttk.Entry and ttk.Checkbutton also fit the theme (usually automatic)
+        style.configure('TEntry', fieldbackground='#1e1e2a', foreground='#ffffff', insertcolor='#ffffff', font=('Segoe UI', 10))
+        style.configure('TCombobox', fieldbackground='#1e1e2a', foreground='#ffffff', selectbackground='#1e1e2a', selectforeground='#ffffff', font=('Segoe UI', 10))
+        style.map('TCombobox', fieldbackground=[('readonly', '#1e1e2a')]) # Ensure readonly looks consistent
+        style.configure('TCheckbutton', background='#2e2e3d', foreground='#c7c7d9', font=('Segoe UI', 10))
+        style.map('TCheckbutton', indicatorcolor=[('selected', '#4f4f73'), ('!selected', '#1e1e2a')],
+                  background=[('active', '#2e2e3d')])
 
 
         # Main layout
@@ -104,16 +83,16 @@ class RobloxFileReplacer(tk.Tk):
         middle.pack(fill='both', expand=True)
 
         # List section
-        list_frame = ttk.LabelFrame(middle, text="Items", style='TFrame') # Use TFrame style for LabelFrame
+        list_frame = ttk.LabelFrame(middle, text="Items")
         list_frame.pack(side='left', fill='both', expand=True, padx=(0,10))
-        self.item_list = tk.Listbox(list_frame, bg='#1e1e2a', fg='#ffffff', font=('Consolas', 10), selectbackground='#4f4f73', relief='flat', borderwidth=0, highlightthickness=0)
+        self.item_list = tk.Listbox(list_frame, bg='#1e1e2a', fg='#ffffff', font=('Consolas', 10), selectbackground='#4f4f73', highlightthickness=0, borderwidth=0)
         self.item_list.pack(side='left', fill='both', expand=True, pady=5, padx=5)
         scroll = ttk.Scrollbar(list_frame, orient='vertical', command=self.item_list.yview)
         scroll.pack(side='right', fill='y')
         self.item_list.config(yscrollcommand=scroll.set)
 
         # Action buttons
-        action_frame = ttk.LabelFrame(middle, text="Actions", style='TFrame') # Use TFrame style for LabelFrame
+        action_frame = ttk.LabelFrame(middle, text="Actions")
         action_frame.pack(side='right', fill='y')
         self.btn_apply = ttk.Button(action_frame, text="Apply", command=self.apply_selected)
         self.btn_apply.pack(fill='x', padx=10, pady=(10,5))
@@ -130,236 +109,213 @@ class RobloxFileReplacer(tk.Tk):
         if src == 'Caches':
             # list caches
             for folder in (self.preinstalled_dir, self.own_dir):
-                if os.path.exists(folder): # Ensure folder exists before listing
-                    for fname in os.listdir(folder):
-                        if os.path.isfile(os.path.join(folder, fname)) and ' - ' in fname:
-                            disp = fname.split(' - ',1)[1]
-                            self.item_list.insert(tk.END, disp)
+                for fname in os.listdir(folder):
+                    if os.path.isfile(os.path.join(folder, fname)) and ' - ' in fname:
+                        disp = fname.split(' - ',1)[1]
+                        self.item_list.insert(tk.END, disp)
         else:
             # list presets
-            if os.path.exists(self.presets_dir): # Ensure folder exists
-                for d in os.listdir(self.presets_dir):
-                    if os.path.isdir(os.path.join(self.presets_dir, d)):
-                        self.item_list.insert(tk.END, d)
+            for d in os.listdir(self.presets_dir):
+                if os.path.isdir(os.path.join(self.presets_dir, d)):
+                    self.item_list.insert(tk.END, d)
 
     def apply_selected(self):
         sel = self.item_list.curselection()
         if not sel:
-            messagebox.showerror("Error", "No item selected.", parent=self)
+            messagebox.showerror("Error", "No item selected.")
             return
-        item_display_name = self.item_list.get(sel)
+        item = self.item_list.get(sel[0]) # get expects index, curselection returns tuple
         if self.source_var.get() == 'Caches':
-            found_cache = False
+            # apply cache
+            # find file in caches
+            found = False
             for folder in (self.preinstalled_dir, self.own_dir):
-                if os.path.exists(folder):
-                    for fname in os.listdir(folder):
-                        if fname.endswith(f"- {item_display_name}"): # Match by display name part
-                            actual_hash = fname.split(' - ',1)[0]
-                            source_path = os.path.join(folder, fname)
-                            target_path = os.path.join(self.http_dir, actual_hash)
-                            try:
-                                shutil.copy2(source_path, target_path)
-                                messagebox.showinfo("Success", f"Applied '{item_display_name}'\n(Hash: {actual_hash})\nto HTTP folder.", parent=self)
-                                found_cache = True
-                                return # Exit after applying
-                            except Exception as e:
-                                messagebox.showerror("Error", f"Failed to apply cache: {e}", parent=self)
-                                return
-            if not found_cache:
-                 messagebox.showerror("Error", f"Cache file for '{item_display_name}' not found.", parent=self)
+                for fname in os.listdir(folder):
+                    if fname.endswith(f"- {item}"): # Make sure this logic is robust
+                        key = fname.split(' - ',1)[0]
+                        try:
+                            shutil.copy2(os.path.join(folder, fname), os.path.join(self.http_dir, key))
+                            messagebox.showinfo("Success", f"Replaced {key} in HTTP folder.")
+                            found = True
+                            return # Exit after first find and apply
+                        except Exception as e:
+                            messagebox.showerror("Error", f"Failed to apply cache {fname}: {e}")
+                            return
+            if not found:
+                 messagebox.showerror("Error", f"Cache file for '{item}' not found.")
 
-        else: # Apply preset
-            preset_folder_path = os.path.join(self.presets_dir, item_display_name)
-            if not os.path.isdir(preset_folder_path):
-                messagebox.showerror("Error", f"Preset folder '{item_display_name}' not found.", parent=self)
-                return
-            
-            count = 0
+        else:
+            # apply preset
+            folder = os.path.join(self.presets_dir, item)
+            cnt=0
             try:
-                for f_preset_name in os.listdir(preset_folder_path):
-                    if ' - ' in f_preset_name: # Ensure it's a cache file format
-                        key_hash = f_preset_name.split(' - ',1)[0]
-                        src_path = os.path.join(preset_folder_path, f_preset_name)
-                        dst_path = os.path.join(self.http_dir, key_hash)
-                        shutil.copy2(src_path, dst_path)
-                        count += 1
-                messagebox.showinfo("Success", f"Applied {count} files from preset '{item_display_name}'.", parent=self)
+                for f in os.listdir(folder):
+                    if os.path.isfile(os.path.join(folder, f)) and ' - ' in f: # Ensure it's a file and valid format
+                        key = f.split(' - ',1)[0]
+                        shutil.copy2(os.path.join(folder, f), os.path.join(self.http_dir, key))
+                        cnt+=1
+                if cnt > 0:
+                    messagebox.showinfo("Success", f"Applied {cnt} files from preset {item}.")
+                else:
+                    messagebox.showinfo("Info", f"No valid cache files found in preset {item}.")
             except Exception as e:
-                messagebox.showerror("Error", f"Failed to apply preset: {e}", parent=self)
+                 messagebox.showerror("Error", f"Failed to apply preset {item}: {e}")
 
 
     def create_cache(self):
         if self.source_var.get() != 'Caches':
-            messagebox.showerror("Error", "Switch to 'Caches' source to create a new cache file.", parent=self)
+            messagebox.showerror("Error", "Switch to Caches view to create a new cache file.")
             return
-
-        src_filepath = filedialog.askopenfilename(
-            title="Select Source File for Cache",
-            parent=self
-        )
-        if not src_filepath:
+        src = filedialog.askopenfilename(title="Select source file for cache")
+        if not src:
             return
 
         dialog = tk.Toplevel(self)
-        dialog.title("Create New Cache")
-        dialog.geometry("450x300") # Adjusted dialog size
+        dialog.title("Create Cache File")
         dialog.configure(bg='#212326')
-        dialog.transient(self)
-        dialog.grab_set()
+        dialog.resizable(False, False) # Dialogs often are not resizable
 
-        # --- Hash input mode ---
-        hash_input_mode_var = tk.StringVar(value="dropdown")
+        custom_hash_var = tk.BooleanVar(value=False)
 
-        # Main frame for content in dialog
-        content_frame = ttk.Frame(dialog, padding="10 10 10 10")
-        content_frame.pack(expand=True, fill='both')
-        
-        # --- Hash source selection ---
-        hash_source_frame = ttk.Frame(content_frame)
-        hash_source_frame.pack(pady=(0,10), fill='x')
-        ttk.Label(hash_source_frame, text="Hash Source:").pack(side='left', anchor='w')
-        
-        rb_dropdown = ttk.Radiobutton(hash_source_frame, text="Select from List", variable=hash_input_mode_var, value="dropdown")
-        rb_dropdown.pack(side='left', padx=(10, 5))
-        rb_custom = ttk.Radiobutton(hash_source_frame, text="Custom Hash", variable=hash_input_mode_var, value="custom")
-        rb_custom.pack(side='left', padx=5)
-
-        # --- Dropdown for function selection ---
-        dropdown_frame = ttk.Frame(content_frame)
-        dropdown_frame.pack(pady=5, fill='x')
-        ttk.Label(dropdown_frame, text="Select Function:").pack(side='left', anchor='w', padx=(0,10))
+        ttk.Label(dialog, text="Select function (determines original hash):").pack(padx=10, pady=(10,0))
+        # Use display names from self.functions for Combobox values
         combo_values = [d for _, d in self.functions]
-        combo_func = ttk.Combobox(dropdown_frame, values=combo_values, state='readonly', width=35)
-        if combo_values:
-            combo_func.current(0)
-        else:
-            combo_func.set("No functions defined") # Placeholder if empty
-        combo_func.pack(side='left', expand=True, fill='x')
+        combo = ttk.Combobox(dialog, values=combo_values, state='readonly', width=40)
+        combo.pack(padx=10, pady=5)
+        if self.functions: # If there are functions, select the first one by default
+            combo.current(0)
+        # else: combobox will be empty, user must use custom hash or be told no functions available
 
-        # --- Entry for custom hash ---
-        custom_hash_frame = ttk.Frame(content_frame)
-        custom_hash_frame.pack(pady=5, fill='x')
-        ttk.Label(custom_hash_frame, text="Custom Hash:").pack(side='left', anchor='w', padx=(0,20)) # Adjusted padding
-        custom_hash_entry = ttk.Entry(custom_hash_frame, width=35)
-        custom_hash_entry.pack(side='left', expand=True, fill='x')
+        custom_hash_check = ttk.Checkbutton(dialog, text="Use Custom Hash", variable=custom_hash_var)
+        custom_hash_check.pack(padx=10, pady=(5,0))
 
-        # --- Entry for display name ---
-        display_name_frame = ttk.Frame(content_frame)
-        display_name_frame.pack(pady=(5,10), fill='x')
-        ttk.Label(display_name_frame, text="Display Name:").pack(side='left', anchor='w', padx=(0,15)) # Adjusted padding
-        display_name_entry = ttk.Entry(display_name_frame, width=35)
-        display_name_entry.pack(side='left', expand=True, fill='x')
-        
+        custom_hash_label = ttk.Label(dialog, text="Enter Custom Hash:")
+        custom_hash_label.pack(padx=10, pady=(5,0))
+        custom_hash_entry = ttk.Entry(dialog, state='disabled', width=43) # Match width roughly
+        custom_hash_entry.pack(padx=10, pady=5)
+
+        ttk.Label(dialog, text="Enter display name for this cache file:").pack(padx=10, pady=(10,0))
+        entry = ttk.Entry(dialog, width=43) # This is the 'entry' for display name from original code
+        entry.pack(padx=10, pady=5)
+
         # Function to toggle input states
-        def toggle_hash_inputs(*args): # Added *args for trace
-            mode = hash_input_mode_var.get()
-            if mode == "dropdown":
-                combo_func.configure(state='readonly' if combo_values else 'disabled')
-                if combo_values and not combo_func.get() and combo_funccget("state") != 'disabled':
-                    combo_func.current(0)
-                custom_hash_entry.configure(state='disabled')
-                custom_hash_entry.delete(0, tk.END)
-            else: # mode == "custom"
-                combo_func.configure(state='disabled')
-                custom_hash_entry.configure(state='normal')
-                custom_hash_entry.focus() # Set focus to custom hash entry
-
-        hash_input_mode_var.trace_add("write", toggle_hash_inputs) # Call toggle when var changes
-        toggle_hash_inputs() # Initial call to set state
-
-        if not combo_values: # If no functions, default to custom hash input
-            hash_input_mode_var.set("custom")
-            toggle_hash_inputs() # Update UI based on new default
-
-        # --- OK/Cancel buttons ---
-        btn_frame = ttk.Frame(content_frame)
-        btn_frame.pack(pady=(10,0), fill='x', side='bottom') # Pack at bottom
+        def toggle_hash_input_state():
+            if custom_hash_var.get():
+                combo.config(state='disabled')
+                custom_hash_label.config(foreground='#c7c7d9') # Active color
+                custom_hash_entry.config(state='normal')
+                custom_hash_entry.focus_set()
+            else:
+                combo.config(state='readonly' if self.functions else 'disabled') # Disable combo if no functions
+                custom_hash_label.config(foreground='#888888') # Dimmed color
+                custom_hash_entry.config(state='disabled')
+                if self.functions:
+                    combo.focus_set()
         
-        # Center buttons
-        center_btn_frame = ttk.Frame(btn_frame) # Sub-frame to center buttons
-        center_btn_frame.pack(anchor='center')
+        custom_hash_check.config(command=toggle_hash_input_state) # Assign command here
 
-        ok_button = ttk.Button(center_btn_frame, text="OK")
-        ok_button.pack(side='left', padx=5)
-        cancel_button = ttk.Button(center_btn_frame, text="Cancel", command=dialog.destroy)
-        cancel_button.pack(side='left', padx=5)
+        # Set initial state
+        toggle_hash_input_state() # Call once to set initial states correctly
 
         def on_ok():
-            display_name = display_name_entry.get().strip()
-            cache_hash_key = None
+            cache_display_name = entry.get().strip()
+            final_hash_key = ""
 
-            if hash_input_mode_var.get() == "dropdown":
-                if not combo_values:
-                    messagebox.showerror("Error", "No functions available in the dropdown. Please add to functions.json or use 'Custom Hash'.", parent=dialog)
+            if custom_hash_var.get():
+                final_hash_key = custom_hash_entry.get().strip()
+                if not final_hash_key:
+                    messagebox.showerror("Input Error", "Custom Hash cannot be empty when 'Use Custom Hash' is checked.", parent=dialog)
+                    dialog.lift()
+                    custom_hash_entry.focus_set()
                     return
-                selected_function_display = combo_func.get()
-                if not selected_function_display or selected_function_display == "No functions defined":
-                    messagebox.showerror("Error", "Please select a function from the dropdown.", parent=dialog)
+            else: # Use dropdown
+                if not self.functions:
+                    messagebox.showerror("Configuration Error", "No functions available in the dropdown. Please use a custom hash or add functions to 'functions.json'.", parent=dialog)
+                    dialog.lift()
                     return
-                cache_hash_key = next((k for k, d in self.functions if d == selected_function_display), None)
-            else: # Custom hash
-                cache_hash_key = custom_hash_entry.get().strip()
+
+                selected_function_display_name = combo.get()
+                if not selected_function_display_name:
+                    messagebox.showerror("Input Error", "Please select a function from the dropdown list.", parent=dialog)
+                    dialog.lift()
+                    combo.focus_set()
+                    return
+                
+                # Find the original hash (key) corresponding to the selected display name
+                found_key = next((k for k, d in self.functions if d == selected_function_display_name), None)
+                if not found_key:
+                    # This should ideally not happen if combobox is populated correctly and readonly
+                    messagebox.showerror("Internal Error", "Selected function not found in mappings. Check 'functions.json'.", parent=dialog)
+                    dialog.lift()
+                    return
+                final_hash_key = found_key
             
-            if not cache_hash_key:
-                messagebox.showerror("Error", "Cache Hash is required. Please enter a custom hash or select a function.", parent=dialog)
+            if not cache_display_name:
+                messagebox.showerror("Input Error", "Display name for the cache file is required.", parent=dialog)
+                dialog.lift()
+                entry.focus_set()
                 return
-            if not display_name:
-                messagebox.showerror("Error", "Display Name is required.", parent=dialog)
-                return
-
-            # Basic hash validation (alphanumeric, example)
-            if not cache_hash_key.isalnum() or len(cache_hash_key) < 5: # Example simple validation
-                 if not messagebox.askyesno("Confirm Hash", f"The hash '{cache_hash_key}' seems unusual. Are you sure it's correct?", parent=dialog):
-                    return
-
-            dialog.destroy() # Close dialog after validation
-
-            final_filename = f"{cache_hash_key} - {display_name}"
-            target_path = os.path.join(self.own_dir, final_filename)
-
-            if os.path.exists(target_path):
-                if not messagebox.askyesno("Confirm Overwrite", f"Cache '{final_filename}' already exists in 'Own' caches. Overwrite?", parent=self):
-                    return
             
+            # All inputs seem valid, destroy dialog before file operations
+            dialog.destroy()
+
+            # Construct filename and copy
+            new_cache_filename = f"{final_hash_key} - {cache_display_name}"
+            destination_path = os.path.join(self.own_dir, new_cache_filename)
+
             try:
-                shutil.copy2(src_filepath, target_path)
-                self.refresh_view() # Refresh list to show new cache
-                messagebox.showinfo("Success", f"Cache '{final_filename}' created successfully in 'Own' caches.", parent=self)
+                shutil.copy2(src, destination_path)
+                self.refresh_view() # Refresh the list to show the new cache
+                messagebox.showinfo("Success", f"Cache file '{new_cache_filename}' created successfully in 'Own' caches folder.")
             except Exception as e:
-                messagebox.showerror("Error", f"Failed to create cache: {e}", parent=self)
+                messagebox.showerror("File Error", f"Could not create cache file: {e}")
 
-        ok_button.config(command=on_ok)
-        display_name_entry.bind("<Return>", lambda event: on_ok()) # Enter key submits
-        custom_hash_entry.bind("<Return>", lambda event: on_ok())
+        btn_frame = ttk.Frame(dialog) # Renamed from btnf for clarity
+        btn_frame.pack(pady=10)
+        
+        ok_button = ttk.Button(btn_frame, text="OK", command=on_ok)
+        ok_button.pack(side='left', padx=5)
+        cancel_button = ttk.Button(btn_frame, text="Cancel", command=dialog.destroy)
+        cancel_button.pack(side='left', padx=5)
 
+        dialog.transient(self)
+        dialog.grab_set()
+        # Center dialog
+        dialog.update_idletasks()
+        x = self.winfo_x() + (self.winfo_width() // 2) - (dialog.winfo_width() // 2)
+        y = self.winfo_y() + (self.winfo_height() // 2) - (dialog.winfo_height() // 2)
+        dialog.geometry(f"+{x}+{y}")
         dialog.wait_window()
 
 
     def clear_http_folder(self):
-        if messagebox.askyesno("Confirm Clear", "Are you sure you want to delete all files and folders within the Roblox HTTP cache folder?", parent=self):
-            cleared_count = 0
-            failed_count = 0
-            if not os.path.exists(self.http_dir):
-                messagebox.showinfo("Info", "HTTP cache folder does not exist. Nothing to clear.", parent=self)
-                return
-
-            for item_name in os.listdir(self.http_dir):
-                item_path = os.path.join(self.http_dir, item_name)
-                try:
-                    if os.path.isfile(item_path) or os.path.islink(item_path):
-                        os.unlink(item_path)
-                    elif os.path.isdir(item_path):
-                        shutil.rmtree(item_path)
-                    cleared_count += 1
-                except Exception as e:
-                    print(f"Failed to delete {item_path}: {e}")
-                    failed_count += 1
+        if messagebox.askyesno("Confirm","Are you sure you want to delete all files and folders within the Roblox HTTP cache folder? This cannot be undone."):
+            cnt=0
+            err_cnt=0
+            for f_or_d in os.listdir(self.http_dir):
+                p=os.path.join(self.http_dir,f_or_d)
+                try: 
+                    if os.path.isdir(p):
+                        shutil.rmtree(p)
+                    else:
+                        os.unlink(p)
+                    cnt+=1
+                except Exception: # Catch permission errors etc.
+                    err_cnt+=1
             
-            if failed_count > 0:
-                messagebox.showwarning("Partial Success", f"Cleared {cleared_count} items. Failed to clear {failed_count} items (see console for details).", parent=self)
+            if err_cnt > 0:
+                messagebox.showwarning("Clearing Partially Successful", f"Cleared {cnt} items. Failed to delete {err_cnt} items (possibly in use or permission denied).")
             else:
-                messagebox.showinfo("Success", f"Successfully cleared {cleared_count} items from the HTTP cache folder.", parent=self)
+                messagebox.showinfo("Done", f"Successfully cleared {cnt} items from the HTTP cache folder.")
+
 
 if __name__=='__main__':
     app = RobloxFileReplacer()
+    # Center main window
+    app.update_idletasks()
+    width = app.winfo_width()
+    height = app.winfo_height()
+    x = (app.winfo_screenwidth() // 2) - (width // 2)
+    y = (app.winfo_screenheight() // 2) - (height // 2)
+    app.geometry(f'{width}x{height}+{x}+{y}')
     app.mainloop()
