@@ -1,3 +1,23 @@
+# temporary patch
+to make this current method work, you have to go to your "%LOCALAPPDATA%\Roblox" folder and replace your existing rbx-storage.db with the custom one
+
+### Step 1:
+Press the windows button and type/paste %LOCALAPPDATA%\Roblox
+
+### Step 2: 
+look inside of the roblox folder for a file called rbx-storage.db and delete it
+
+### Step 3: 
+take the rbx-storage.db from this repository and paste it into the roblox folder
+
+### Step 4: 
+everything works normally now
+
+
+
+
+
+
 # RCM - Roblox Cache Modifier
 
 **A Python script for swapping Roblox cached assets.**
