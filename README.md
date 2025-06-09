@@ -1,4 +1,4 @@
-# temporary patch
+# Temporary patch
 to make this current method work, you have to go to your "%LOCALAPPDATA%\Roblox" folder and replace your existing rbx-storage.db with the custom one
 
 ### Step 1:
@@ -16,6 +16,19 @@ everything works normally now
 
 
 
+
+
+
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
 
 
 # RCM - Roblox Cache Modifier
