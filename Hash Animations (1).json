@@ -1,0 +1,45 @@
+{
+  "R6": {
+    "Movements": {
+      "Idle Animation": "22a87dc2fcc1d7f2d4eebec174141c11",
+      "Idle2 Animation": "a2f3fad0cecf63e774e8ef6cc9c97b4e",
+      "Walk Animation": "0fd5f9c25cd37c70ef6e684c72074e49",
+      "Jump Animation": "7539c4f54a00b625bdbd7d7a7e7ef8f1",
+      "Fall Animation": "d20f0d3583c732a8051c2158f5cc1f19",
+      "Climb Animation": "a02e552baeba068c093bcb1a76eb45ec",
+      "Sit Animation": "f6ecdc448a2209379cd24cbe4ce3e5d6",
+      "Tool Animation": "e5dc649027b4bf7e899871c6e4d71ee0"
+    },
+    "Emotes": {
+      "Point": "602725f425e0a013d84bb21be7627ab6",
+      "Wave": "ae7e719ea339235769e16f8305053f10",
+      "Cheer": "ee78cba37f188a2b15b64418850ca495",
+      "Laugh": "838b1304e1c1537a27ceadefbf9ecc51",
+      "Dance1": ["02ece11809f221ddd093a76c6c8a0106", "80b7ec8237b7e52b77001403b715c0e3"],
+      "Dance2": ["8ff51ca2fa90d8f956a3480000581706", "89ab42d62b27222bb43cdebf2527c89e"],
+      "Dance3": ["4cbdcacd5e01161030f8610095dea43c", "32f463dc445caafb8325be291c698665"]
+    }
+  },
+  "R15": {
+    "Movements": {
+      "Default R15 Idle Animation": "47110f4d8e257b525bf97ca2279244d6",
+      "Default R15 Idle2 Animation": "Not Discovered",
+      "Default R15 Walk Animation": "23747833975a3d843dc307cc127c1653",
+      "Default R15 Run Animation": "11fff792f88f7ca84eb60ea7b78dbad7",
+      "Default R15 Jump Animation": "db9b6b72d427ff0387427d85f4553428",
+      "Default R15 Fall Animation": "e581cdabb28a4d1eac4d5dda06cb25c5",
+      "Default R15 Climb Animation": "2fc27967cea89fbe864e847d55d8302c",
+      "Sit Animation": "b40a3f8f953e14acb4fba4817ec4db67",
+      "Tool Animation": "83c6b48f7000d9e9f9129fc06fa6ceaa"
+    },
+    "Emotes": {
+      "Point": "eb79b6ae407054e840b0c3f9a73df16e",
+      "Wave": "9cd0407ec9a67a7ec59d7f010b2d0fba",
+      "Cheer": "05ceec28c5cebc52901a86d828cae6e7",
+      "Laugh": "a0c98d24a06d46fd1a67c4f07502df1b",
+      "Dance": "337ceb1d28b12797e56d5293b391b83f",
+      "Dance2": "8ff8693bee0694f86d678aed4a74b4d2",
+      "Dance3": "8c0309696e82e7aeb1a1d7f0c07f07eb"
+    }
+  }
+}
