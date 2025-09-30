@@ -13,6 +13,12 @@ take the rbx-storage.db from this repository and paste it into the roblox folder
 ### Step 4: 
 everything works normally now
 
+## Switch to modded for:
+### second dance cache
+### r6 + r15 dance cache
+### r6 + r15 tool cache
+### r6 + r15 sit cache
+
 
 
 
